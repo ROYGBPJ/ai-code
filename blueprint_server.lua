@@ -31,6 +31,22 @@ local function hasGamePass(player)
 	return success and result
 end
 
+-- Helper function to check if player owns a StrangeMan structure
+local function ownsStrangeMan(player)
+	for _, model in pairs(game.Workspace.PlayerModels:GetChildren()) do
+		if model:FindFirstChild("ItemName") then
+			if model.ItemName.Value == "StrangeMan" then
+				if model:FindFirstChild("Owner") then
+					if model.Owner.Value == player then
+						return true
+					end
+				end
+			end
+		end
+	end
+	return false
+end
+
 ------------------------[[ Blueprint Data Setup ]]------------------------
 
 game.Players.PlayerAdded:connect(function(newPlayer)
@@ -41,7 +57,7 @@ game.Players.PlayerAdded:connect(function(newPlayer)
 	-- Add SuperBlueprint BoolValue
 	local superBlueprint = Instance.new("BoolValue")
 	superBlueprint.Name = "SuperBlueprint"
-	superBlueprint.Value = isWhitelisted(newPlayer) or hasGamePass(newPlayer)
+	superBlueprint.Value = hasGamePass(newPlayer) or ownsStrangeMan(newPlayer)
 	superBlueprint.Parent = playerBlueprintsClone
 
 end)
@@ -165,23 +181,10 @@ function placeBlueprint(player, structureName, cframe, propertyOwner, oldBluepri
 				end
 				woodPileClasses[part.Parent.TreeClass.Value] = woodPileClasses[part.Parent.TreeClass.Value] + partVolume
 
-				-- Check for Whitelist, Gamepass, OR the physical StrangeMan structure on the map
+				-- Check for Gamepass OR the physical StrangeMan structure on the map
 				local strangeMan = false
-				if isWhitelisted(player) or hasGamePass(player) then
+				if hasGamePass(player) or ownsStrangeMan(player) then
 					strangeMan = true
-				else
-					for i,v in pairs(game.Workspace.PlayerModels:GetChildren()) do
-						if v:FindFirstChild("ItemName") then
-							if v.ItemName.Value == "StrangeMan" then
-								if v:FindFirstChild("Owner") then
-									if v.Owner.Value == player then
-										strangeMan = true
-										break -- break loop early if found
-									end
-								end
-							end
-						end
-					end
 				end
 
 				if strangeMan == true then
