@@ -5,7 +5,7 @@ local WebhookURL = "https://discord.com/api/webhooks/798791561563209728/YjnIVWoK
 
 ------------------------[[ Configurations ]]------------------------
 
-local GAMEPASS_ID = 0 -- Replace with your actual GamePass ID
+local GAMEPASS_ID = 1860215433 -- Replace with your actual GamePass ID
 local WHITELIST = {
 	"LumbermanLegacy", -- Replace with actual Player Usernames (Put names inside quotation marks)
 	"Username2", 
@@ -31,15 +31,15 @@ local function hasGamePass(player)
 	return success and result
 end
 
--- Helper function to check if player owns a StrangeMan structure
+-- Helper function to check if player owns the StrangeMan NPC in Region_Main
 local function ownsStrangeMan(player)
-	for _, model in pairs(game.Workspace.PlayerModels:GetChildren()) do
-		if model:FindFirstChild("ItemName") then
-			if model.ItemName.Value == "StrangeMan" then
-				if model:FindFirstChild("Owner") then
-					if model.Owner.Value == player then
-						return true
-					end
+	local strangeManNPC = game.Workspace:FindFirstChild("Region_Main")
+	if strangeManNPC then
+		strangeManNPC = strangeManNPC:FindFirstChild("StrangeMan")
+		if strangeManNPC then
+			if strangeManNPC:FindFirstChild("Owner") then
+				if strangeManNPC.Owner.Value == player then
+					return true
 				end
 			end
 		end
@@ -53,7 +53,7 @@ game.Players.PlayerAdded:connect(function(newPlayer)
 
 	local playerBlueprintsClone = script.Parent.PlayerBlueprints:Clone()
 	playerBlueprintsClone.Parent = newPlayer
-	
+
 	-- Add SuperBlueprint BoolValue
 	local superBlueprint = Instance.new("BoolValue")
 	superBlueprint.Name = "SuperBlueprint"
@@ -181,7 +181,7 @@ function placeBlueprint(player, structureName, cframe, propertyOwner, oldBluepri
 				end
 				woodPileClasses[part.Parent.TreeClass.Value] = woodPileClasses[part.Parent.TreeClass.Value] + partVolume
 
-				-- Check for Gamepass OR the physical StrangeMan structure on the map
+				-- Check for Gamepass OR StrangeMan NPC ownership in Region_Main
 				local strangeMan = false
 				if hasGamePass(player) or ownsStrangeMan(player) then
 					strangeMan = true
